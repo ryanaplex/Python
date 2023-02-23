@@ -17,6 +17,9 @@ import win32file
 import ctypes
 import re
 #import serial
+import numba
+import numpy as np  
+from numba import jit
 from PySide6 import QtGui
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 from PyQt5.QtWidgets import * 
@@ -30,6 +33,7 @@ from Test001 import Ui_Dialog
 class AppWindow(QDialog):
 
     types = ["SN","BIOS","OS"]
+    @numba.njit
     def __init__(self):
         super().__init__()
         self.ui = Ui_Dialog()
@@ -170,25 +174,28 @@ class AppWindow(QDialog):
         self.show()
         self.combobox_default()
         self.combobox_2_default()
-        
+    @numba.njit        
     def read_reg(k = 'DisplayVersion'):
         key = winreg.OpenKeyEx(path, r"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\\")
         value = winreg.QueryValueEx(key,k)
-
+    @numba.njit
     def combobox_default(self):
         aplex_list = ["HMI","APC","ACS","Display"]
         self.ui.comboBox.addItems(aplex_list)
         item ="APC"
         self.ui.comboBox.setCurrentText(item)
+    @numba.njit        
     def combobox_2_default(self):
         timezone_list = ["France","Germany","Italy","Japan","Singapore","Taipei"]
         self.ui.comboBox_2.addItems(timezone_list)
         item="Taipei"
         self.ui.comboBox_2.setCurrentText(item)
+    @numba.njit        
     def bytes_to_GB(self, bytes):
         gb = bytes/(1024*1024*1024)
         gb = round(gb, 2)
         return gb
+    @numba.njit    
     def pushButton_13_Click(self):  #Set
         #self.ui.pushButton_3.setEnabled(False)
         #self.ui.pushButton_3.setStyleSheet("QPushButton{background-color:#8B8B83; color: white;}") #PINK:#DAA3A6
@@ -539,6 +546,7 @@ class AppWindow(QDialog):
 
         else:    
             self.setStyleSheet("QPushButton{background-color:#8B8B83; color: white;}")
+    @numba.njit
     def pushButton_14_Click(self):
         # OS
         #self.ui.pushButton_3.setEnabled(False)
@@ -632,13 +640,16 @@ class AppWindow(QDialog):
         self.ui.pushButton_12.setEnabled(False)
         self.ui.pushButton_12.setStyleSheet("QPushButton{background-color:#8B8B83; color: white;}") #PINK:#DAA3A6
 
-        
+    @numba.njit        
     def pushButton_11_Click(self):
         self.ui.textEdit.clear()
+    @numba.njit        
     def pushButton_7_Click(self):
         os.system('shutdown /r /t 5')
+    @numba.njit
     def pushButton_8_Click(self):
         os.system('shutdown /s /t 5')
+    @numba.njit
     def pushButton_19_Click(self):
         self.ui.pushButton_19.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}")
         timezone=str(self.ui.comboBox_2.currentText())
@@ -656,7 +667,7 @@ class AppWindow(QDialog):
             tz="Tokyo Standard Time"
         print(tz)
         os.system('tzutil /s '+'"'+tz+'"')  
-       
+    @numba.njit       
     def pushButton_Click(self):
         global hwinf
         hwinf=" ================<<< HW Tested >>>================= "
@@ -665,7 +676,7 @@ class AppWindow(QDialog):
         self.ui.checkBox_4.setChecked(True)
         self.ui.pushButton.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         os.system('devmgmt.msc')        
-
+    @numba.njit
     def pushButton_18_Click(self):
         self.ui.pushButton_18.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         self.ui.checkBox_2.setChecked(True)
@@ -693,6 +704,7 @@ class AppWindow(QDialog):
             sninf=">>>>> No SN file in "+file_path+" <<<<<<"
             self.ui.textBrowser.setText(sninf)
             #fileall.close()
+    @numba.njit
     def pushButton_2_Click(self):
         global biosinf
         self.ui.pushButton_2.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
@@ -738,7 +750,7 @@ class AppWindow(QDialog):
         #osinf+="\n"+"PC    Name:             "+platform.node()
         #self.ui.textBrowser.setText(osinf)
         #self.ui.checkBox.setChecked(True)
-        
+    @numba.njit        
     def pushButton_30_Click(self):
         global ledinf
         ledinf=" ================<<< LED Tested >>>================= "
@@ -746,7 +758,7 @@ class AppWindow(QDialog):
         self.ui.textBrowser.setText(ledinf)
         self.ui.pushButton_30.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         self.ui.checkBox_27.setChecked(True)
-        
+    @numba.njit        
     def pushButton_4_Click(self):
         self.ui.textBrowser.clear()
         subprocess.call([r'Script\LAN.bat'])
@@ -756,7 +768,7 @@ class AppWindow(QDialog):
         self.ui.textBrowser.setText(laninf)
         self.ui.pushButton_4.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         self.ui.checkBox_5.setChecked(True)
-        
+    @numba.njit        
     def pushButton_5_Click(self):
         self.ui.textBrowser.clear()
         subprocess.call([r'Script\COM.bat'])
@@ -766,7 +778,7 @@ class AppWindow(QDialog):
         self.ui.textBrowser.setText(cominf)
         self.ui.pushButton_5.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         self.ui.checkBox_6.setChecked(True)
-        
+    @numba.njit        
     def pushButton_15_Click(self):
         subprocess.call([r'Script\USB.bat'])
         global usbinf
@@ -775,7 +787,7 @@ class AppWindow(QDialog):
         self.ui.textBrowser.setText(usbinf)
         self.ui.pushButton_15.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         self.ui.checkBox_15.setChecked(True)
-        
+    @numba.njit        
     def pushButton_16_Click(self):
         subprocess.call([r'Script\Touch.bat'])
         global touchinf
@@ -784,7 +796,7 @@ class AppWindow(QDialog):
         self.ui.textBrowser.setText(touchinf)
         self.ui.pushButton_16.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         self.ui.checkBox_16.setChecked(True)
-        
+    @numba.njit       
     def pushButton_24_Click(self):
         subprocess.call([r'Script\BT.bat'])
         global btinf
@@ -793,7 +805,7 @@ class AppWindow(QDialog):
         self.ui.textBrowser.setText(btinf)
         self.ui.pushButton_24.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         self.ui.checkBox_21.setChecked(True)
-        
+    @numba.njit        
     def pushButton_22_Click(self):
         subprocess.call([r'Script\Audio.bat'])
         global auinf
@@ -802,6 +814,7 @@ class AppWindow(QDialog):
         self.ui.textBrowser.setText(auinf)
         self.ui.pushButton_22.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         self.ui.checkBox_19.setChecked(True)
+    @numba.njit        
     def pushButton_25_Click(self):
         subprocess.call([r'Script\DVI_DP_HDMI_VGA.bat'])
         global ddhvinf
@@ -810,7 +823,7 @@ class AppWindow(QDialog):
         self.ui.textBrowser.setText(ddhvinf)
         self.ui.pushButton_25.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         self.ui.checkBox_22.setChecked(True)
-        
+    @numba.njit        
     def pushButton_27_Click(self):
         global cfinf
         cfinf=" ================<<< Customized Function Tested >>>================= "
@@ -818,7 +831,7 @@ class AppWindow(QDialog):
         self.ui.textBrowser.setText(cfinf)
         self.ui.pushButton_27.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         self.ui.checkBox_24.setChecked(True)
-        
+    @numba.njit        
     def pushButton_21_Click(self):
         subprocess.call([r'Script\GPIO.bat'])
         global gpioinf
@@ -827,7 +840,7 @@ class AppWindow(QDialog):
         self.ui.textBrowser.setText(gpioinf)
         self.ui.pushButton_21.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         self.ui.checkBox_18.setChecked(True)
-        
+    @numba.njit        
     def pushButton_17_Click(self):
         subprocess.call([r'Script\WDT.bat'])
         global wdtinf
@@ -836,6 +849,7 @@ class AppWindow(QDialog):
         self.ui.textBrowser.setText(wdtinf)
         self.ui.pushButton_17.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         self.ui.checkBox_17.setChecked(True)
+    @numba.njit
     def pushButton_23_Click(self):
         subprocess.call([r'Script\Brightness.bat'])
         global brinf
@@ -844,7 +858,7 @@ class AppWindow(QDialog):
         self.ui.textBrowser.setText(brinf)
         self.ui.pushButton_23.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         self.ui.checkBox_20.setChecked(True)
-        
+    @numba.njit        
     def pushButton_31_Click(self):
         global adinf
         adinf=" ================<<< Auto Dimming Tested >>>================= "
@@ -852,7 +866,7 @@ class AppWindow(QDialog):
         self.ui.textBrowser.setText(adinf)
         self.ui.pushButton_31.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         self.ui.checkBox_28.setChecked(True)
-        
+    @numba.njit        
     def pushButton_28_Click(self):
         subprocess.call([r'Script\LCD.bat'])
         global dpinf
@@ -861,7 +875,7 @@ class AppWindow(QDialog):
         self.ui.textBrowser.setText(dpinf)
         self.ui.pushButton_28.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         self.ui.checkBox_25.setChecked(True)
-        
+    @numba.njit        
     def pushButton_26_Click(self):
         subprocess.call([r'Script\DVI_DP_HDMI_VGA.bat'])
         global reinf
@@ -870,7 +884,7 @@ class AppWindow(QDialog):
         self.ui.textBrowser.setText(reinf)
         self.ui.pushButton_26.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         self.ui.checkBox_23.setChecked(True)
-        
+    @numba.njit        
     def pushButton_29_Click(self):
         global osdinf
         osdinf=" ================<<< OSD Tested >>>================= "
@@ -878,7 +892,7 @@ class AppWindow(QDialog):
         self.ui.textBrowser.setText(osdinf)
         self.ui.pushButton_29.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         self.ui.checkBox_26.setChecked(True)
-        
+    @numba.njit        
     def pushButton_32_Click(self):
         global mvinf
         mvinf=" ================<<< Manu Ver Tested >>>================= "
@@ -886,7 +900,7 @@ class AppWindow(QDialog):
         self.ui.textBrowser.setText(mvinf)
         self.ui.pushButton_32.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         self.ui.checkBox_29.setChecked(True)
-        
+    @numba.njit        
     def pushButton_33_Click(self):
         global uuidinf
         uuidinf=" ================<<< UUID Tested >>>================= "
@@ -909,7 +923,7 @@ class AppWindow(QDialog):
         self.ui.textBrowser.setText(uuidinf)
         self.ui.pushButton_33.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         self.ui.checkBox_30.setChecked(True)
-        
+    @numba.njit        
     def pushButton_6_Click(self):
         theBeatles = ['tzutil /g']
         for beatle in theBeatles:
@@ -918,7 +932,7 @@ class AppWindow(QDialog):
             tzinfo=str(dataout.decode('ascii').split())
             print(tzinfo)
             self.ui.textBrowser_2.setText(tzinfo)
-        
+    @numba.njit        
     def pushButton_12_Click(self):
         self.ui.pushButton_12.setStyleSheet("QPushButton{background-color:#A3C1DA; color: white;}") 
         msg = self.ui.textEdit.toPlainText()
@@ -1033,5 +1047,7 @@ app.setStyleSheet(stylesheet)
 w = AppWindow()
 w.show()
 
-     
+
+
+    
 sys.exit(app.exec_())
